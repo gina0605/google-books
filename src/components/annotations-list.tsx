@@ -2,13 +2,13 @@
 
 import { useState, useMemo } from "react";
 import { Annotation } from "@/lib/books";
-import { useChapters, Chapter } from "@/hooks/use-chapters";
+import { useChapters } from "@/hooks/use-chapters";
 import { 
   ChevronDown, 
   ChevronRight, 
   Plus, 
   Trash2, 
-  Settings, 
+  BookText,
   X,
   Filter
 } from "lucide-react";
@@ -202,10 +202,10 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   };
 
   return (
-    <div className="space-y-6 pb-20">
+    <div className="space-y-2 pb-20">
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-4 md:mb-8">
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-grow sm:flex-grow-0">
+      <div className="flex items-center gap-4 mb-2 md:mb-8">
+        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-grow-0">
           <Filter className="w-4 h-4 text-gray-400" />
           <select
             id="color-filter"
@@ -224,9 +224,9 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
         <button 
           onClick={() => setIsManagingChapters(!isManagingChapters)}
           className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingChapters ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white dark:bg-gray-800 text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
-          title="Manage Chapters"
+          title="Manage Chapters" // Adjusted title for clarity
         >
-          <Settings className="w-5 h-5" />
+          <BookText className="w-5 h-5" />
         </button>
       </div>
 

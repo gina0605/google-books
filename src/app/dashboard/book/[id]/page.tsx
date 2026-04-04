@@ -82,7 +82,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
         </header>
 
         <main className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-2 mi:mb-6">
             <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
               <MessageSquare className="text-blue-500" />
               Memos & Highlights
