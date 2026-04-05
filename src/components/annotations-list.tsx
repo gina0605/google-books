@@ -11,7 +11,8 @@ import {
   BookText,
   X,
   Filter,
-  MessageSquare
+  MessageSquare,
+  ExternalLink
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -332,16 +333,24 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                   {group.annotations.map((annotation) => {
                     const { color } = parseHighlightStyle(annotation.highlightStyle);
                     const styles = getHighlightStyles(color);
+                    const readerUrl = `https://play.google.com/books/reader?id=${volumeId}&gb_annotation=${annotation.id}${annotation.pageId ? `&pg=${annotation.pageId}` : ''}`;
                     
                     return (
                       <div key={annotation.id} className="group">
-                        <div
-                          className={`px-4 py-2 rounded-xl shadow-sm border transition-colors ${styles.container}`}
+                        <a
+                          href={readerUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          title="View in Google Play Books"
+                          className={`relative block px-4 py-2 rounded-xl shadow-sm border transition-all hover:scale-[1.01] active:scale-[0.99] cursor-pointer ${styles.container}`}
                         >
+                          <div className="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                            <ExternalLink className="w-4 h-4 text-gray-400 dark:text-gray-500" />
+                          </div>
                           {annotation.textSnippet && (
                             <div className={annotation.note ? "mb-2" : "mb-0"}>
                               <blockquote 
-                                className={`text-gray-700 dark:text-gray-200 pl-1 py-0.5 ${styles.quote}`}
+                                className={`text-gray-700 dark:text-gray-200 pl-1 py-0.5 pr-6 ${styles.quote}`}
                               >
                                 {annotation.textSnippet}
                               </blockquote>
@@ -358,7 +367,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                               </p>
                             </div>
                           )}
-                        </div>
+                        </a>
 
                         <div className="mt-1 mb-0.5 px-1 text-[10px] text-gray-400 flex justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
                           {annotation.pageNumber && (
