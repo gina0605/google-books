@@ -149,7 +149,7 @@ export async function fetchAnnotations(
         textSnippet: item.selectedText?.trim(),
         note: noteText,
         updated: item.updated,
-        pageId: item.pageIds?.[0], // Capture the raw ID
+        pageId: item.currentVersionRanges?.gbTextRange?.startPosition,
         pageNumber: extractPageNumber(item.pageIds), // Capture the parsed number
         highlightStyle: item.highlightStyle,
       };

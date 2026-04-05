@@ -333,7 +333,9 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                   {group.annotations.map((annotation) => {
                     const { color } = parseHighlightStyle(annotation.highlightStyle);
                     const styles = getHighlightStyles(color);
-                    const readerUrl = `https://play.google.com/books/reader?id=${volumeId}&gb_annotation=${annotation.id}${annotation.pageId ? `&pg=${annotation.pageId}` : ''}`;
+                    const readerUrl = `https://play.google.com/books/reader?id=${volumeId}` +
+                      `&gb_annotation=${annotation.id}` +
+                      `${annotation.pageId ? `&pg=${annotation.pageId}` : ''}`;
                     
                     return (
                       <div key={annotation.id} className="group">
