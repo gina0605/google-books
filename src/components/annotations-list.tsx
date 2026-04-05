@@ -10,7 +10,8 @@ import {
   Trash2, 
   BookText,
   X,
-  Filter
+  Filter,
+  MessageSquare
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -202,35 +203,49 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   };
 
   return (
-    <div className="space-y-2 pb-20">
-      {/* Filters */}
-      <div className="flex items-center gap-4 sticky top-0 z-10 px-3 py-2">
-        <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-grow-0">
-          <Filter className="w-4 h-4 text-gray-400" />
-          <select
-            id="color-filter"
-            value={selectedColor}
-            onChange={(e) => setSelectedColor(e.target.value)}
-            className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer pr-2"
-          >
-            {Object.entries(colorCategories).map(([key, info]) => (
-              <option key={key} value={key} className="bg-white dark:bg-gray-800">
-                {info.displayName} ({info.count})
-              </option>
-            ))}
-          </select>
-        </div>
-        
-        <button 
-          onClick={() => setIsManagingChapters(!isManagingChapters)}
-          className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingChapters ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white dark:bg-gray-800 text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
-          title="Manage Chapters" // Adjusted title for clarity
-        >
-          <BookText className="w-5 h-5" />
-        </button>
+    <div className="pb-20 relative">
+      {/* Title Section (Non-sticky) */}
+      <div className="flex items-center justify-between md:justify-start md:gap-4 py-4">
+        <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+          <MessageSquare className="text-blue-500" />
+          <span className="whitespace-nowrap">Memos & Highlights</span>
+        </h2>
+        <span className="text-sm text-gray-500 dark:text-gray-400 font-medium md:mt-1">
+          Total: {annotations.length}
+        </span>
       </div>
 
-      {/* Chapter Management Form */}
+      {/* Sticky Buttons (Transparent Background) */}
+      <div className="sticky top-0 z-20 flex justify-end pointer-events-none md:-mt-14 mb-2">
+        <div className="flex items-center gap-3 pointer-events-auto py-2">
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <Filter className="w-4 h-4 text-gray-400" />
+            <select
+              id="color-filter"
+              value={selectedColor}
+              onChange={(e) => setSelectedColor(e.target.value)}
+              className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer pr-2"
+            >
+              {Object.entries(colorCategories).map(([key, info]) => (
+                <option key={key} value={key} className="bg-white dark:bg-gray-800">
+                  {info.displayName} ({info.count})
+                </option>
+              ))}
+            </select>
+          </div>
+          
+          <button 
+            onClick={() => setIsManagingChapters(!isManagingChapters)}
+            className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingChapters ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
+            title="Manage Chapters"
+          >
+            <BookText className="w-5 h-5" />
+          </button>
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        {/* Chapter Management Form */}
       {isManagingChapters && (
         <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4">
           <div className="flex justify-between items-center mb-4">
@@ -366,6 +381,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
         })}
       </div>
     </div>
+  </div>
   );
 }
 

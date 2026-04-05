@@ -82,22 +82,23 @@ export default async function BookDetailPage({ params }: BookPageProps) {
         </header>
 
         <main className="max-w-4xl mx-auto">
-          <div className="flex items-center justify-between mb-2 mi:mb-6">
-            <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-              <MessageSquare className="text-blue-500" />
-              Memos & Highlights
-            </h2>
-            <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-              Total: {annotations.length}
-            </span>
-          </div>
-
           {annotations.length === 0 ? (
-            <div className="bg-white dark:bg-gray-800 p-12 rounded-xl text-center border border-gray-200 dark:border-gray-700">
-              <p className="text-gray-500 dark:text-gray-400">
-                No highlights or memos found for this book.
-              </p>
-            </div>
+            <>
+              <div className="flex items-center justify-between mb-2 md:mb-6">
+                <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+                  <MessageSquare className="text-blue-500" />
+                  Memos & Highlights
+                </h2>
+                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  Total: {annotations.length}
+                </span>
+              </div>
+              <div className="bg-white dark:bg-gray-800 p-12 rounded-xl text-center border border-gray-200 dark:border-gray-700">
+                <p className="text-gray-500 dark:text-gray-400">
+                  No highlights or memos found for this book.
+                </p>
+              </div>
+            </>
           ) : (
             <AnnotationsList annotations={annotations} volumeId={book.id} />
           )}
