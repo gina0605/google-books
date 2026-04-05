@@ -108,7 +108,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
   const [editChapterTitle, setEditChapterTitle] = useState("");
   const [editChapterPage, setEditChapterPage] = useState("");
-  const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
+  const [expandedGroups, setExpandedGroups] = useState<Record<string, boolean>>({});
 
   const colorCategories = useMemo(() => {
     const order = ["All", "Yellow", "Red", "Green", "Blue", "Etc"];
@@ -197,7 +197,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   }, [filteredAnnotations, chapters, isManagingChapters]);
 
   const toggleGroup = (id: string) => {
-    setCollapsedGroups(prev => ({ ...prev, [id]: !prev[id] }));
+    setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
   };
 
   const handleAddChapter = (e: React.FormEvent) => {
@@ -386,7 +386,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
       <div className="space-y-1">
 
         {groupedAnnotations.map((group) => {
-          const isCollapsed = collapsedGroups[group.id];
+          const isExpanded = !!expandedGroups[group.id];
           
           return (
             <div key={group.id} className="space-y-4">
@@ -395,10 +395,10 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                   className="w-full flex items-center justify-between group py-3 border-b border-gray-500 dark:border-gray-600 hover:border-blue-400 dark:hover:border-blue-700 transition-colors"
                 >
                 <div className="flex items-center gap-3">
-                  <div className={`p-1 rounded transition-colors ${isCollapsed ? 'text-gray-400' : 'text-blue-500 bg-blue-50 dark:bg-blue-900/20'}`}>
-                    {isCollapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
+                  <div className={`p-1 rounded transition-colors ${!isExpanded ? 'text-gray-400' : 'text-blue-500 bg-blue-50 dark:bg-blue-900/20'}`}>
+                    {!isExpanded ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
-                  <h3 className={`font-bold transition-colors ${isCollapsed ? 'text-gray-500' : 'text-gray-800 dark:text-gray-100 text-lg'}`}>
+                  <h3 className="font-bold transition-colors text-gray-800 text-left">
                     {group.title}
                     {group.startPage && <span className="ml-2 text-sm font-normal text-gray-400">(from p.{group.startPage})</span>}
                   </h3>
@@ -408,7 +408,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                 </span>
               </button>
 
-              {!isCollapsed && (
+              {isExpanded && (
                 <div className="space-y-1 animate-in fade-in slide-in-from-top-2 duration-300">
                   {group.annotations.map((annotation) => {
                     const { color } = parseHighlightStyle(annotation.highlightStyle);
