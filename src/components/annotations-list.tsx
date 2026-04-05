@@ -15,7 +15,8 @@ import {
   Filter,
   MessageSquare,
   ExternalLink,
-  RefreshCw
+  RefreshCw,
+  Search
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -102,6 +103,7 @@ interface GroupedAnnotations {
 export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps) {
   const { chapters, addChapter, removeChapter, editChapter, isLoaded, isSyncing } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
   const [isManagingChapters, setIsManagingChapters] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newChapterPage, setNewChapterPage] = useState("");
@@ -139,9 +141,14 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   }, [annotations]);
 
   const filteredAnnotations = useMemo(() => {
-    if (selectedColor === "ALL") return annotations;
-    return annotations.filter((a) => parseHighlightStyle(a.highlightStyle).color === selectedColor);
-  }, [annotations, selectedColor]);
+    return annotations.filter((a) => {
+      const matchesColor = selectedColor === "ALL" || parseHighlightStyle(a.highlightStyle).color === selectedColor;
+      const matchesSearch = !searchQuery || 
+        (a.note?.toLowerCase().includes(searchQuery.toLowerCase())) || 
+        (a.textSnippet?.toLowerCase().includes(searchQuery.toLowerCase()));
+      return matchesColor && matchesSearch;
+    });
+  }, [annotations, selectedColor, searchQuery]);
 
   const groupedAnnotations = useMemo(() => {
     const groups: GroupedAnnotations[] = [];
@@ -187,8 +194,13 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
 
     if (uncategorizedGroup.annotations.length > 0) groups.push(uncategorizedGroup);
     if (introGroup.annotations.length > 0) groups.push(introGroup);
-    return groups.concat(chapterGroups);
-  }, [filteredAnnotations, chapters, isManagingChapters]);
+
+    const activeChapters = searchQuery 
+      ? chapterGroups.filter(c => c.annotations.length > 0) 
+      : chapterGroups;
+
+    return groups.concat(activeChapters);
+  }, [filteredAnnotations, chapters, isManagingChapters, searchQuery]);
 
   const toggleGroup = (id: string) => {
     setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
@@ -226,7 +238,24 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
 
       {/* Sticky Buttons (Transparent Background) */}
       <div className="sticky top-0 z-20 flex justify-end pointer-events-none md:-mt-14 mb-2">
-        <div className="flex items-center gap-3 pointer-events-auto py-2">
+        <div className="flex items-center gap-2 pointer-events-auto py-2">
+          {/* Search Input */}
+          <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+            <Search className="w-4 h-4 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none w-20 md:w-32"
+            />
+            {searchQuery && (
+              <button onClick={() => setSearchQuery("")}>
+                <X className="w-3 h-3 text-gray-400 hover:text-gray-600" />
+              </button>
+            )}
+          </div>
+
           <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
             <Filter className="w-4 h-4 text-gray-400" />
             <select
@@ -378,6 +407,13 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
 
       {/* Grouped Annotations List */}
       <div className="space-y-1">
+        {filteredAnnotations.length === 0 && (
+          <div className="bg-white dark:bg-gray-800 p-12 rounded-xl text-center border border-gray-200 dark:border-gray-700 my-8">
+            <p className="text-gray-500 dark:text-gray-400">
+              No matching memos found.
+            </p>
+          </div>
+        )}
 
         {groupedAnnotations.map((group) => {
           const isExpanded = !!expandedGroups[group.id];
