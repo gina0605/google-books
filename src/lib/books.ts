@@ -74,20 +74,12 @@ export async function fetchReadBooks(accessToken: string): Promise<Book[]> {
   });
 }
 
-// Helper to extract page number from Google's pageIds (e.g., "PA102" -> "102")
-function extractPageNumber(pageIds: string[] | undefined): string | undefined {
-  if (!pageIds || pageIds.length === 0) return undefined;
-  
-  const firstId = pageIds[0];
-  // Common prefixes: PA (Page), PP (Preface/Page), PR (Preface)
-  // We look for numbers after these prefixes
-  const match = firstId.match(/[A-Z]+(\d+)/);
-  if (match && match[1]) {
-    return match[1];
-  }
-  
-  // Fallback: just remove any leading letters
-  return firstId.replace(/^[A-Z]+/, '');
+// Helper to extract page number from Google's CfiRange (e.g., "/74[PA26]/2/10/84:0" -> "37")
+function extractPageNumber(cfiRange: string | undefined): string | undefined {
+  if (!cfiRange) return undefined;
+
+  const match = cfiRange.match(/\/(\d+)/);
+  return match ? String(Number(match[1]) / 2) : undefined;
 }
 
 export async function fetchAnnotations(
@@ -150,7 +142,7 @@ export async function fetchAnnotations(
         note: noteText,
         updated: item.updated,
         pageId: item.currentVersionRanges?.gbTextRange?.startPosition,
-        pageNumber: extractPageNumber(item.pageIds), // Capture the parsed number
+        pageNumber: extractPageNumber(item.currentVersionRanges?.imageCfiRange?.startPosition), // Capture the parsed number
         highlightStyle: item.highlightStyle,
       };
     })
