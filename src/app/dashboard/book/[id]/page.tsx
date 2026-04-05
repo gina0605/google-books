@@ -4,7 +4,7 @@ import { fetchAnnotations, fetchReadBooks } from "@/lib/books";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, BookOpen, Calendar, MessageSquare, ShoppingBag } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, MessageSquare } from "lucide-react";
 import { AnnotationsList } from "@/components/annotations-list";
 
 interface BookPageProps {

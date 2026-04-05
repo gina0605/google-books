@@ -76,12 +76,12 @@ export async function fetchReadBooks(accessToken: string): Promise<Book[]> {
   });
 }
 
-// Helper to extract page number from Google's CfiRange (e.g., "/74[PA26]/2/10/84:0" -> "37")
-function extractPageNumber(cfiRange: string | undefined): string | undefined {
-  if (!cfiRange) return undefined;
+// Helper to extract page number from Google's pageIds (e.g., "PT20" -> "18")
+function extractPageNumber(pageIds: string[] | undefined): string | undefined {
+  if (!pageIds || pageIds.length === 0) return undefined;
 
-  const match = cfiRange.match(/\/(\d+)/);
-  return match ? String(Number(match[1]) / 2) : undefined;
+  const match = pageIds[0].match(/[A-Z]+(\d+)/);
+  return match ? match[1] : undefined;
 }
 
 export async function fetchAnnotations(
@@ -144,7 +144,7 @@ export async function fetchAnnotations(
         note: noteText,
         updated: item.updated,
         pageId: item.currentVersionRanges?.gbTextRange?.startPosition,
-        pageNumber: extractPageNumber(item.currentVersionRanges?.imageCfiRange?.startPosition), // Capture the parsed number
+        pageNumber: extractPageNumber(item.pageIds), // Capture the parsed number
         highlightStyle: item.highlightStyle,
       };
     })

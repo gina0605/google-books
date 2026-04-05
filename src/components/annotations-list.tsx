@@ -16,7 +16,8 @@ import {
   MessageSquare,
   ExternalLink,
   RefreshCw,
-  Search
+  Search,
+  Settings
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -101,10 +102,11 @@ interface GroupedAnnotations {
 }
 
 export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps) {
-  const { chapters, addChapter, removeChapter, editChapter, isLoaded, isSyncing } = useChapters(volumeId);
+  const { chapters, offset, addChapter, removeChapter, editChapter, updateOffset, isLoaded, isSyncing } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isManagingChapters, setIsManagingChapters] = useState(false);
+  const [isShowingSettings, setIsShowingSettings] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newChapterPage, setNewChapterPage] = useState("");
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
@@ -173,7 +175,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
         return;
       }
 
-      const pageNum = parseInt(a.pageNumber);
+      const pageNum = parseInt(a.pageNumber) + offset;
       
       // Check if it's in the Intro (before first chapter)
       if (sortedChapters.length > 0 && pageNum < sortedChapters[0].startPage) {
@@ -282,16 +284,64 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
           </div>
           
           <button 
-            onClick={() => setIsManagingChapters(!isManagingChapters)}
+            onClick={() => {
+              setIsManagingChapters(!isManagingChapters);
+              if (!isManagingChapters) setIsShowingSettings(false);
+            }}
             className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingChapters ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
             title="Manage Chapters"
           >
             <BookText className="w-5 h-5" />
           </button>
+
+          <button 
+            onClick={() => {
+              setIsShowingSettings(!isShowingSettings);
+              if (!isShowingSettings) setIsManagingChapters(false);
+            }}
+            className={`p-2 rounded-xl border transition-colors shadow-sm ${isShowingSettings ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
+            title="Book Settings"
+          >
+            <Settings className="w-5 h-5" />
+          </button>
         </div>
       </div>
 
       <div className="space-y-2">
+        {/* Book Settings Form */}
+        {isShowingSettings && (
+          <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4">
+            <div className="flex justify-between items-center mb-4">
+              <h3 className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
+                <Settings className="w-4 h-4" />
+                Book Settings
+              </h3>
+              <button onClick={() => setIsShowingSettings(false)} className="text-blue-400 hover:text-blue-600">
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="space-y-4">
+              <div className="flex flex-col gap-2">
+                <label className="text-sm font-semibold text-blue-800 dark:text-blue-300">
+                  Page Number Offset
+                </label>
+                <div className="flex items-center gap-3">
+                  <input 
+                    type="number" 
+                    value={offset}
+                    onChange={(e) => updateOffset(parseInt(e.target.value) || 0)}
+                    className="w-24 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                  />
+                  <p className="text-xs text-gray-500 dark:text-gray-400">
+                    This value is added to the page number extracted from Google Books.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* Chapter Management Form */}
       {isManagingChapters && (
         <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4">
@@ -492,7 +542,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
 
                         <div className="mt-1 mb-0.5 px-1 text-[10px] text-gray-400 flex justify-end gap-3 opacity-60 group-hover:opacity-100 transition-opacity">
                           {annotation.pageNumber && (
-                            <span>p. {annotation.pageNumber}</span>
+                            <span>p. {parseInt(annotation.pageNumber) + offset}</span>
                           )}
                           <span>
                             {new Date(annotation.updated).toLocaleDateString("ko-KR")}

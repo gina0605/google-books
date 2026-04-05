@@ -13,6 +13,7 @@ interface LocalStorageData {
 
 export function useChapters(volumeId: string) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
+  const [offset, setOffset] = useState<number>(0);
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -27,13 +28,9 @@ export function useChapters(volumeId: string) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Migration check: if parsed is an array, it's the old format
-        if (Array.isArray(parsed)) {
-          setChapters(parsed);
-        } else if (parsed.chapters) {
-          setChapters(parsed.chapters);
-          initialLastSynced = parsed.lastSynced;
-        }
+        setChapters(parsed.chapters || []);
+        setOffset(parsed.offset || 0);
+        initialLastSynced = parsed.lastSynced;
       } catch (e) {
         console.error("Failed to parse saved chapters:", e);
       }
@@ -50,10 +47,12 @@ export function useChapters(volumeId: string) {
           const data = await response.json();
           if (!data.upToDate) {
             setChapters(data.chapters);
+            setOffset(data.offset || 0);
             localStorage.setItem(
               storageKey,
               JSON.stringify({
                 chapters: data.chapters,
+                offset: data.offset || 0,
                 lastSynced: data.lastSynced,
               })
             );
@@ -71,13 +70,16 @@ export function useChapters(volumeId: string) {
 
   // Function to save to Drive (debounced)
   const saveToDrive = useCallback(
-    async (updatedChapters: Chapter[]) => {
+    async (updatedChapters: Chapter[], updatedOffset: number) => {
       setIsSyncing(true);
       try {
         const response = await fetch(`/api/chapters/${volumeId}`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(updatedChapters),
+          body: JSON.stringify({
+            chapters: updatedChapters,
+            offset: updatedOffset,
+          }),
         });
 
         if (response.ok) {
@@ -86,6 +88,7 @@ export function useChapters(volumeId: string) {
             storageKey,
             JSON.stringify({
               chapters: updatedChapters,
+              offset: updatedOffset,
               lastSynced: data.lastSynced,
             })
           );
@@ -99,8 +102,9 @@ export function useChapters(volumeId: string) {
     [volumeId, storageKey]
   );
 
-  const updateChaptersLocally = (newChapters: Chapter[]) => {
+  const updateDataLocally = (newChapters: Chapter[], newOffset: number) => {
     setChapters(newChapters);
+    setOffset(newOffset);
     
     // Update localStorage immediately (as cache)
     const saved = localStorage.getItem(storageKey);
@@ -116,6 +120,7 @@ export function useChapters(volumeId: string) {
       storageKey,
       JSON.stringify({
         chapters: newChapters,
+        offset: newOffset,
         lastSynced, // keep current sync time until server confirms
       })
     );
@@ -123,7 +128,7 @@ export function useChapters(volumeId: string) {
     // Debounce save to Drive
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveToDrive(newChapters);
+      saveToDrive(newChapters, newOffset);
     }, 2000);
   };
 
@@ -134,26 +139,32 @@ export function useChapters(volumeId: string) {
       startPage,
     };
     const updated = [...chapters, newChapter].sort((a, b) => a.startPage - b.startPage);
-    updateChaptersLocally(updated);
+    updateDataLocally(updated, offset);
   };
 
   const removeChapter = (id: string) => {
     const updated = chapters.filter((c) => c.id !== id);
-    updateChaptersLocally(updated);
+    updateDataLocally(updated, offset);
   };
 
   const editChapter = (id: string, title: string, startPage: number) => {
     const updated = chapters.map((c) =>
       c.id === id ? { ...c, title, startPage } : c
     ).sort((a, b) => a.startPage - b.startPage);
-    updateChaptersLocally(updated);
+    updateDataLocally(updated, offset);
+  };
+
+  const updateOffset = (newOffset: number) => {
+    updateDataLocally(chapters, newOffset);
   };
 
   return {
     chapters,
+    offset,
     addChapter,
     removeChapter,
     editChapter,
+    updateOffset,
     isLoaded,
     isSyncing,
   };

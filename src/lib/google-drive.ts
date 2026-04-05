@@ -7,6 +7,33 @@ export interface DriveFile {
   modifiedTime: string;
 }
 
+export const CHAPTERS_FOLDER_NAME = "google-books-chapters";
+
+export async function getBookData(
+  accessToken: string,
+  volumeId: string
+): Promise<{ chapters: any[]; offset: number; modifiedTime: string | null }> {
+  const fileName = `${volumeId}.json`;
+  const folderId = await findFolder(accessToken, CHAPTERS_FOLDER_NAME);
+  
+  if (!folderId) {
+    return { chapters: [], offset: 0, modifiedTime: null };
+  }
+
+  const metadata = await findFileMetadata(accessToken, fileName, folderId);
+  if (!metadata) {
+    return { chapters: [], offset: 0, modifiedTime: null };
+  }
+
+  const content = await getFileContent(accessToken, metadata.id);
+  
+  return {
+    chapters: content.chapters || [],
+    offset: content.offset || 0,
+    modifiedTime: metadata.modifiedTime
+  };
+}
+
 export async function findFileMetadata(
   accessToken: string,
   fileName: string,

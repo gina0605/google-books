@@ -3,14 +3,13 @@ import { getServerSession } from "next-auth/next";
 import { authOptions } from "@/lib/auth";
 import {
   findFileMetadata,
-  getFileContent,
   createFile,
   updateFile,
   findFolder,
   createFolder,
+  getBookData,
+  CHAPTERS_FOLDER_NAME,
 } from "@/lib/google-drive";
-
-const CHAPTERS_FOLDER_NAME = "google-books-chapters";
 
 export async function GET(
   req: NextRequest,
@@ -22,31 +21,21 @@ export async function GET(
   }
 
   const volumeId = params.id;
-  const fileName = `${volumeId}.json`;
   const lastSynced = req.nextUrl.searchParams.get("lastSynced");
 
   try {
     const accessToken = session.accessToken as string;
-    const folderId = await findFolder(accessToken, CHAPTERS_FOLDER_NAME);
-    
-    let metadata = null;
-    if (folderId) {
-      metadata = await findFileMetadata(accessToken, fileName, folderId);
-    }
-
-    if (!metadata) {
-      return NextResponse.json({ chapters: [], lastSynced: null });
-    }
+    const { chapters, offset, modifiedTime } = await getBookData(accessToken, volumeId);
 
     // Compare modifiedTime with lastSynced
-    if (lastSynced && new Date(metadata.modifiedTime) <= new Date(lastSynced)) {
+    if (lastSynced && modifiedTime && new Date(modifiedTime) <= new Date(lastSynced)) {
       return NextResponse.json({ upToDate: true });
     }
 
-    const content = await getFileContent(session.accessToken as string, metadata.id);
     return NextResponse.json({
-      chapters: content,
-      lastSynced: metadata.modifiedTime,
+      chapters,
+      offset,
+      lastSynced: modifiedTime,
     });
   } catch (error) {
     console.error("Error in GET /api/chapters/[id]:", error);
@@ -65,7 +54,7 @@ export async function POST(
 
   const volumeId = params.id;
   const fileName = `${volumeId}.json`;
-  const body = await req.json();
+  const body = await req.json(); // body is { offset, chapters }
 
   try {
     const accessToken = session.accessToken as string;
@@ -83,12 +72,7 @@ export async function POST(
     
     let result;
     if (metadata) {
-      const fileInFolder = await findFileMetadata(accessToken, fileName, folderId);
-      if (fileInFolder) {
-        result = await updateFile(accessToken, fileInFolder.id, body);
-      } else {
-        result = await createFile(accessToken, fileName, body, folderId);
-      }
+      result = await updateFile(accessToken, metadata.id, body);
     } else {
       result = await createFile(accessToken, fileName, body, folderId);
     }
