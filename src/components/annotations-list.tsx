@@ -12,7 +12,8 @@ import {
   X,
   Filter,
   MessageSquare,
-  ExternalLink
+  ExternalLink,
+  RefreshCw
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -97,7 +98,7 @@ interface GroupedAnnotations {
 }
 
 export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps) {
-  const { chapters, addChapter, removeChapter, isLoaded } = useChapters(volumeId);
+  const { chapters, addChapter, removeChapter, isLoaded, isSyncing } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
   const [isManagingChapters, setIsManagingChapters] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
@@ -207,10 +208,18 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
     <div className="pb-20 relative">
       {/* Title Section (Non-sticky) */}
       <div className="flex items-center justify-between md:justify-start md:gap-4 py-4">
-        <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
-          <MessageSquare className="text-blue-500" />
-          <span className="whitespace-nowrap">Memos & Highlights</span>
-        </h2>
+        <div className="flex items-center gap-3">
+          <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
+            <MessageSquare className="text-blue-500" />
+            <span className="whitespace-nowrap">Memos & Highlights</span>
+          </h2>
+          {isSyncing && (
+            <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full animate-pulse">
+              <RefreshCw className="w-3 h-3 animate-spin" />
+              SYNCING
+            </div>
+          )}
+        </div>
         <span className="text-sm text-gray-500 dark:text-gray-400 font-medium md:mt-1">
           Total: {annotations.length}
         </span>
