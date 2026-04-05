@@ -90,9 +90,6 @@ export default async function BookDetailPage({ params }: BookPageProps) {
                   <MessageSquare className="text-blue-500" />
                   Memos
                 </h2>
-                <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
-                  Total: {annotations.length}
-                </span>
               </div>
               <div className="bg-white dark:bg-gray-800 p-12 rounded-xl text-center border border-gray-200 dark:border-gray-700">
                 <p className="text-gray-500 dark:text-gray-400">

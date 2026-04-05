@@ -232,25 +232,27 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
           )}
         </div>
         <span className="text-sm text-gray-500 dark:text-gray-400 font-medium md:mt-1">
-          Total: {annotations.length}
+          {searchQuery === "" && selectedColor === "ALL"
+            ? `Total: ${annotations.length}`
+            : `Match: ${filteredAnnotations.length}/${annotations.length}`}
         </span>
       </div>
 
       {/* Sticky Buttons (Transparent Background) */}
       <div className="sticky top-0 z-20 flex justify-end pointer-events-none md:-mt-14 mb-2">
-        <div className="flex items-center gap-2 pointer-events-auto py-2">
+        <div className="flex items-center gap-2 pointer-events-auto py-2 w-full md:w-auto">
           {/* Search Input */}
-          <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
-            <Search className="w-4 h-4 text-gray-400" />
+          <div className="flex-1 md:flex-none flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm min-w-0">
+            <Search className="w-4 h-4 text-gray-400 shrink-0" />
             <input
               type="text"
               placeholder="Search..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none w-20 md:w-32"
+              className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none w-full md:w-32"
             />
             {searchQuery && (
-              <button onClick={() => setSearchQuery("")}>
+              <button onClick={() => setSearchQuery("")} className="shrink-0">
                 <X className="w-3 h-3 text-gray-400 hover:text-gray-600" />
               </button>
             )}
@@ -266,7 +268,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
             >
               {Object.entries(colorCategories).map(([key, info]) => (
                 <option key={key} value={key} className="bg-white dark:bg-gray-800">
-                  {info.displayName} ({info.count})
+                  {info.displayName}
                 </option>
               ))}
             </select>
