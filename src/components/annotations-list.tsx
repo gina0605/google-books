@@ -206,11 +206,11 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   return (
     <div className="pb-20 relative">
       {/* Title Section (Non-sticky) */}
-      <div className="flex items-center justify-between md:justify-start md:gap-4 py-4">
+      <div className="flex items-center justify-between md:justify-start md:gap-4 pt-2 pb-0 md:py-4">
         <div className="flex items-center gap-3">
           <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
             <MessageSquare className="text-blue-500" />
-            <span className="whitespace-nowrap">Memos & Highlights</span>
+            <span className="whitespace-nowrap">Memos</span>
           </h2>
           {isSyncing && (
             <div className="flex items-center gap-1.5 text-[10px] font-bold text-blue-500 bg-blue-50 dark:bg-blue-900/20 px-2 py-0.5 rounded-full animate-pulse">

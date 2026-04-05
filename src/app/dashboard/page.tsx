@@ -17,22 +17,19 @@ export default async function DashboardPage() {
     const books = await fetchReadBooks(session.accessToken);
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
-        <header className="max-w-7xl mx-auto flex flex-col sm:flex-row sm:justify-between items-center gap-4 mb-8 md:mb-12">
-          <Link href="/" className="flex items-center gap-2 text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8 md:pt-6">
+        <header className="max-w-7xl mx-auto flex flex-row sm:justify-between items-center gap-4 mb-4 md:mb-8">
+          <Link href="/" className="flex flex-grow items-center gap-2 text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100">
             <BookOpen className="text-blue-500" />
             <span>My Reading Library</span>
           </Link>
 
           <div className="flex items-center gap-4">
-            <span className="text-gray-600 dark:text-gray-300">
-              {session.user?.name}
-            </span>
             {session.user?.image ? (
               <img
                 src={session.user.image}
                 alt="Profile"
-                className="w-10 h-10 rounded-full"
+                className="w-8 h-8 md:w-10 md:h-10 rounded-full"
               />
             ) : (
               <div className="w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">

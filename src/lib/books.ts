@@ -4,6 +4,7 @@ export interface Book {
   authors: string[];
   thumbnail?: string;
   publishedDate?: string;
+  acquiredDate?: string;
   description?: string;
   isbn?: string;
 }
@@ -68,6 +69,7 @@ export async function fetchReadBooks(accessToken: string): Promise<Book[]> {
       authors: item.volumeInfo.authors || [],
       thumbnail: item.volumeInfo.imageLinks?.thumbnail,
       publishedDate: item.volumeInfo.publishedDate,
+      acquiredDate: item.userInfo?.acquiredTime,
       description: item.volumeInfo.description,
       isbn: isbn13 || isbn10,
     };
@@ -150,7 +152,7 @@ export async function fetchAnnotations(
     // This removes bookmarks or other non-content annotations
     .filter((a: Annotation) => a.textSnippet || a.note);
 
-  console.log(`Filtered to ${annotations.length} content-rich annotations (memos/highlights).`);
+  console.log(`Filtered to ${annotations.length} content-rich annotations (memos).`);
 
   return annotations;
 }

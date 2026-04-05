@@ -7,7 +7,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Google Books Memo Viewer",
-  description: "View your Google Play Books memos and highlights",
+  description: "View your Google Play Books memos",
 };
 
 export default function RootLayout({

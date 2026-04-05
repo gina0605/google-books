@@ -4,7 +4,7 @@ import { fetchAnnotations, fetchReadBooks } from "@/lib/books";
 import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { ArrowLeft, BookOpen, Calendar, MessageSquare } from "lucide-react";
+import { ArrowLeft, BookOpen, Calendar, MessageSquare, ShoppingBag } from "lucide-react";
 import { AnnotationsList } from "@/components/annotations-list";
 
 interface BookPageProps {
@@ -38,11 +38,11 @@ export default async function BookDetailPage({ params }: BookPageProps) {
     const annotations = await fetchAnnotations(session.accessToken, book.id);
 
     return (
-      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:p-8">
-        <header className="max-w-4xl mx-auto mb-8 md:mb-12">
+      <div className="min-h-screen bg-gray-50 dark:bg-gray-900 p-4 md:pt-6">
+        <header className="max-w-4xl mx-auto mb-4">
           <Link
             href="/dashboard"
-            className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors mb-6 md:mb-8"
+            className="flex items-center gap-2 text-gray-500 hover:text-blue-500 transition-colors mb-4 md:mb-6"
           >
             <ArrowLeft className="w-4 h-4" />
             Back to Library
@@ -68,15 +68,16 @@ export default async function BookDetailPage({ params }: BookPageProps) {
               <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-gray-100 mb-2">
                 {book.title}
               </h1>
-              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-4">
+              <p className="text-lg md:text-xl text-gray-600 dark:text-gray-300 mb-2 md:mb-4">
                 {book.authors.join(", ")}
               </p>
-              {book.publishedDate && (
-                <div className="flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-                  <Calendar className="w-4 h-4" />
-                  <span>Published: {book.publishedDate}</span>
-                </div>
-              )}
+              {book.acquiredDate && 
+                <div className="space-y-1">
+                  <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-500 dark:text-gray-400">
+                    <ShoppingBag className="w-4 h-4" />
+                    <span>Purchased: {new Date(book.acquiredDate).toLocaleDateString()}</span>
+                  </div>
+                </div>}
             </div>
           </div>
         </header>
@@ -87,7 +88,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
               <div className="flex items-center justify-between mb-2 md:mb-6">
                 <h2 className="text-xl md:text-2xl font-bold text-gray-800 dark:text-gray-100 flex items-center gap-2">
                   <MessageSquare className="text-blue-500" />
-                  Memos & Highlights
+                  Memos
                 </h2>
                 <span className="text-sm text-gray-500 dark:text-gray-400 font-medium">
                   Total: {annotations.length}
@@ -95,7 +96,7 @@ export default async function BookDetailPage({ params }: BookPageProps) {
               </div>
               <div className="bg-white dark:bg-gray-800 p-12 rounded-xl text-center border border-gray-200 dark:border-gray-700">
                 <p className="text-gray-500 dark:text-gray-400">
-                  No highlights or memos found for this book.
+                  No memos found for this book.
                 </p>
               </div>
             </>
