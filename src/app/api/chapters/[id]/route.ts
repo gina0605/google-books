@@ -6,7 +6,11 @@ import {
   getFileContent,
   createFile,
   updateFile,
+  findFolder,
+  createFolder,
 } from "@/lib/google-drive";
+
+const CHAPTERS_FOLDER_NAME = "google-books-chapters";
 
 export async function GET(
   req: NextRequest,
@@ -18,11 +22,17 @@ export async function GET(
   }
 
   const volumeId = params.id;
-  const fileName = `google-books-chapters-${volumeId}.json`;
+  const fileName = `${volumeId}.json`;
   const lastSynced = req.nextUrl.searchParams.get("lastSynced");
 
   try {
-    const metadata = await findFileMetadata(session.accessToken as string, fileName);
+    const accessToken = session.accessToken as string;
+    const folderId = await findFolder(accessToken, CHAPTERS_FOLDER_NAME);
+    
+    let metadata = null;
+    if (folderId) {
+      metadata = await findFileMetadata(accessToken, fileName, folderId);
+    }
 
     if (!metadata) {
       return NextResponse.json({ chapters: [], lastSynced: null });
@@ -54,17 +64,33 @@ export async function POST(
   }
 
   const volumeId = params.id;
-  const fileName = `google-books-chapters-${volumeId}.json`;
+  const fileName = `${volumeId}.json`;
   const body = await req.json();
 
   try {
-    const metadata = await findFileMetadata(session.accessToken as string, fileName);
+    const accessToken = session.accessToken as string;
+    let folderId = await findFolder(accessToken, CHAPTERS_FOLDER_NAME);
+    if (!folderId) {
+      folderId = await createFolder(accessToken, CHAPTERS_FOLDER_NAME);
+    }
 
+    if (!folderId) {
+      return NextResponse.json({ error: "Failed to create folder on Drive" }, { status: 500 });
+    }
+
+    // Try to find the file in the folder
+    let metadata = await findFileMetadata(accessToken, fileName, folderId);
+    
     let result;
     if (metadata) {
-      result = await updateFile(session.accessToken as string, metadata.id, body);
+      const fileInFolder = await findFileMetadata(accessToken, fileName, folderId);
+      if (fileInFolder) {
+        result = await updateFile(accessToken, fileInFolder.id, body);
+      } else {
+        result = await createFile(accessToken, fileName, body, folderId);
+      }
     } else {
-      result = await createFile(session.accessToken as string, fileName, body);
+      result = await createFile(accessToken, fileName, body, folderId);
     }
 
     if (!result) {
