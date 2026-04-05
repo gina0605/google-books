@@ -74,8 +74,8 @@ export default async function BookDetailPage({ params }: BookPageProps) {
               {book.acquiredDate && 
                 <div className="space-y-1">
                   <div className="flex items-center justify-center md:justify-start gap-2 text-sm text-gray-500 dark:text-gray-400">
-                    <ShoppingBag className="w-4 h-4" />
-                    <span>Purchased: {new Date(book.acquiredDate).toLocaleDateString()}</span>
+                    <Calendar className="w-4 h-4" />
+                    <span>Purchased: {new Date(book.acquiredDate).toLocaleDateString("ko-KR")}</span>
                   </div>
                 </div>}
             </div>

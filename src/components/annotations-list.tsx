@@ -450,9 +450,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                             <span>p. {annotation.pageNumber}</span>
                           )}
                           <span>
-                            {new Date(annotation.updated).getFullYear()}.
-                            {String(new Date(annotation.updated).getMonth() + 1).padStart(2, '0')}.
-                            {String(new Date(annotation.updated).getDate()).padStart(2, '0')}
+                            {new Date(annotation.updated).toLocaleDateString("ko-KR")}
                           </span>
                         </div>
                       </div>
