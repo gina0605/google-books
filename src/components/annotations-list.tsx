@@ -258,13 +258,20 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
             )}
           </div>
 
-          <div className="flex items-center gap-2 bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm">
+          <div 
+            className={`flex items-center gap-2 backdrop-blur-sm px-3 py-2 rounded-xl border shadow-sm transition-colors duration-200
+              ${selectedColor === "ALL" 
+                ? "bg-white/80 dark:bg-gray-800/80 border-gray-200 dark:border-gray-700" 
+                : getHighlightStyles(selectedColor).container 
+              }
+            `}
+          >
             <Filter className="w-4 h-4 text-gray-400" />
             <select
               id="color-filter"
               value={selectedColor}
               onChange={(e) => setSelectedColor(e.target.value)}
-              className="bg-transparent text-sm font-semibold text-gray-700 dark:text-gray-200 focus:outline-none cursor-pointer pr-2"
+              className="bg-transparent text-sm font-semibold focus:outline-none cursor-pointer pr-2 text-gray-700 dark:text-gray-200"
             >
               {Object.entries(colorCategories).map(([key, info]) => (
                 <option key={key} value={key} className="bg-white dark:bg-gray-800">
