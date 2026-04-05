@@ -8,6 +8,8 @@ import {
   ChevronRight, 
   Plus, 
   Trash2, 
+  Pencil,
+  Check,
   BookText,
   X,
   Filter,
@@ -98,11 +100,14 @@ interface GroupedAnnotations {
 }
 
 export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps) {
-  const { chapters, addChapter, removeChapter, isLoaded, isSyncing } = useChapters(volumeId);
+  const { chapters, addChapter, removeChapter, editChapter, isLoaded, isSyncing } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
   const [isManagingChapters, setIsManagingChapters] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newChapterPage, setNewChapterPage] = useState("");
+  const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
+  const [editChapterTitle, setEditChapterTitle] = useState("");
+  const [editChapterPage, setEditChapterPage] = useState("");
   const [collapsedGroups, setCollapsedGroups] = useState<Record<string, boolean>>({});
 
   const colorCategories = useMemo(() => {
@@ -297,13 +302,79 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
               <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Existing Chapters</p>
               {chapters.map((chapter) => (
                 <div key={chapter.id} className="flex items-center justify-between bg-white/50 dark:bg-black/20 p-3 rounded-xl text-sm border border-blue-100/50 dark:border-blue-900/20">
-                  <div className="flex items-center gap-3">
-                    <span className="font-bold text-blue-700 dark:text-blue-400">p.{chapter.startPage}</span>
-                    <span className="text-gray-700 dark:text-gray-200">{chapter.title}</span>
-                  </div>
-                  <button onClick={() => removeChapter(chapter.id)} className="text-red-400 hover:text-red-600 p-1">
-                    <Trash2 className="w-4 h-4" />
-                  </button>
+                  {editingChapterId === chapter.id ? (
+                    <div className="flex-1 flex items-center gap-2">
+                      <input 
+                        type="number"
+                        value={editChapterPage}
+                        onChange={(e) => setEditChapterPage(e.target.value)}
+                        className="w-16 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs"
+                        autoFocus
+                      />
+                      <input 
+                        type="text"
+                        value={editChapterTitle}
+                        onChange={(e) => setEditChapterTitle(e.target.value)}
+                        className="flex-1 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs"
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
+                            setEditingChapterId(null);
+                          } else if (e.key === 'Escape') {
+                            setEditingChapterId(null);
+                          }
+                        }}
+                      />
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => {
+                            editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
+                            setEditingChapterId(null);
+                          }}
+                          className="text-green-500 hover:text-green-600 p-1"
+                        >
+                          <Check className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => setEditingChapterId(null)}
+                          className="text-gray-400 hover:text-gray-600 p-1"
+                        >
+                          <X className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="flex items-center gap-3">
+                        <div className="w-12 shrink-0">
+                          <span className="font-bold text-blue-700 dark:text-blue-400 w-12">
+                            p.{chapter.startPage}
+                          </span>
+                        </div>
+                        <span className="text-gray-700 dark:text-gray-200">{chapter.title}</span>
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <button 
+                          onClick={() => {
+                            setEditingChapterId(chapter.id);
+                            setEditChapterTitle(chapter.title);
+                            setEditChapterPage(chapter.startPage.toString());
+                          }}
+                          className="text-blue-400 hover:text-blue-600 p-1"
+                          title="Edit chapter"
+                        >
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={() => removeChapter(chapter.id)} 
+                          className="text-red-400 hover:text-red-600 p-1"
+                          title="Delete chapter"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </>
+                  )}
                 </div>
               ))}
             </div>

@@ -142,10 +142,18 @@ export function useChapters(volumeId: string) {
     updateChaptersLocally(updated);
   };
 
+  const editChapter = (id: string, title: string, startPage: number) => {
+    const updated = chapters.map((c) =>
+      c.id === id ? { ...c, title, startPage } : c
+    ).sort((a, b) => a.startPage - b.startPage);
+    updateChaptersLocally(updated);
+  };
+
   return {
     chapters,
     addChapter,
     removeChapter,
+    editChapter,
     isLoaded,
     isSyncing,
   };
