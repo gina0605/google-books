@@ -187,13 +187,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
 
     if (uncategorizedGroup.annotations.length > 0) groups.push(uncategorizedGroup);
     if (introGroup.annotations.length > 0) groups.push(introGroup);
-    chapterGroups.forEach(g => {
-      if (g.annotations.length > 0 || isManagingChapters) {
-        groups.push(g);
-      }
-    });
-
-    return groups;
+    return groups.concat(chapterGroups);
   }, [filteredAnnotations, chapters, isManagingChapters]);
 
   const toggleGroup = (id: string) => {
@@ -398,13 +392,13 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
                   <div className={`p-1 rounded transition-colors ${!isExpanded ? 'text-gray-400' : 'text-blue-500 bg-blue-50 dark:bg-blue-900/20'}`}>
                     {!isExpanded ? <ChevronRight className="w-4 h-4" /> : <ChevronDown className="w-4 h-4" />}
                   </div>
-                  <h3 className="font-bold transition-colors text-gray-800 text-left">
+                  <h3 className={`font-bold transition-colors text-left ${group.annotations.length ? "text-gray-800 dark:text-gray-100" : "text-gray-400"}`}>
                     {group.title}
-                    {group.startPage && <span className="ml-2 text-sm font-normal text-gray-400">(from p.{group.startPage})</span>}
+                    {group.startPage && <span className="ml-2 text-sm font-normal text-gray-400">(p.{group.startPage})</span>}
                   </h3>
                 </div>
-                <span className="text-xs font-bold text-gray-300 dark:text-gray-600 group-hover:text-blue-300 transition-colors">
-                  {group.annotations.length} items
+                <span className="text-xs font-bold text-gray-300 dark:text-gray-600 group-hover:text-blue-300 transition-colors shrink-0 text-right">
+                  ( {group.annotations.length} )
                 </span>
               </button>
 
