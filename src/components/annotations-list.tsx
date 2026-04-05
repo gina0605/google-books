@@ -204,7 +204,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   return (
     <div className="space-y-2 pb-20">
       {/* Filters */}
-      <div className="flex items-center gap-4 mb-2 md:mb-8">
+      <div className="flex items-center gap-4 sticky top-0 z-10 px-3 py-2">
         <div className="flex items-center gap-2 bg-white dark:bg-gray-800 px-3 py-2 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm flex-grow-0">
           <Filter className="w-4 h-4 text-gray-400" />
           <select
