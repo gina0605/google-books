@@ -120,7 +120,15 @@ export async function fetchAnnotations(
 
   if (!data.items) return [];
 
+  /*
+  console.log(data.items[0]);
+  data.items.forEach((item: any) => {
+    if(item.deleted) console.log(item);
+  });
+  */
+
   const annotations: Annotation[] = data.items
+    .filter((item: any) => item.deleted !== true) // Filter out deleted annotations
     .map((item: any) => {
       let noteText = item.data?.trim();
       
@@ -150,9 +158,20 @@ export async function fetchAnnotations(
     })
     // Filter out annotations that have neither a highlight (textSnippet) nor a user note (note)
     // This removes bookmarks or other non-content annotations
-    .filter((a: Annotation) => a.textSnippet || a.note);
+    .filter((a: Annotation) => a.textSnippet || a.note)
+    .sort((a : Annotation, b : Annotation) => {
+      // 1. Sort by pageNumber (numerically)
+      const pA = a.pageNumber ? parseInt(a.pageNumber) : Infinity;
+      const pB = b.pageNumber ? parseInt(b.pageNumber) : Infinity;
+      if (pA !== pB) return pA - pB;
 
-  console.log(`Filtered to ${annotations.length} content-rich annotations (memos).`);
+      // 2. If pageNumbers are the same, sort by pageId (startPosition)
+      const idA = a.pageId || "";
+      const idB = b.pageId || "";
+      return idA.localeCompare(idB);
+    });
+
+  console.log(`Filtered and sorted ${annotations.length} content-rich annotations (memos).`);
 
   return annotations;
 }
