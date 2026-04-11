@@ -105,8 +105,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
   const { chapters, offset, addChapter, removeChapter, editChapter, updateOffset, isLoaded, isSyncing } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
-  const [isManagingChapters, setIsManagingChapters] = useState(false);
-  const [isShowingSettings, setIsShowingSettings] = useState(false);
+  const [isManagingBook, setIsManagingBook] = useState(false);
   const [newChapterTitle, setNewChapterTitle] = useState("");
   const [newChapterPage, setNewChapterPage] = useState("");
   const [editingChapterId, setEditingChapterId] = useState<string | null>(null);
@@ -202,7 +201,7 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
       : chapterGroups;
 
     return groups.concat(activeChapters);
-  }, [filteredAnnotations, chapters, isManagingChapters, searchQuery]);
+  }, [filteredAnnotations, chapters, offset, searchQuery]);
 
   const toggleGroup = (id: string) => {
     setExpandedGroups(prev => ({ ...prev, [id]: !prev[id] }));
@@ -284,185 +283,168 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
           </div>
           
           <button 
-            onClick={() => {
-              setIsManagingChapters(!isManagingChapters);
-              if (!isManagingChapters) setIsShowingSettings(false);
-            }}
-            className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingChapters ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
-            title="Manage Chapters"
+            onClick={() => setIsManagingBook(!isManagingBook)}
+            className={`p-2 rounded-xl border transition-colors shadow-sm ${isManagingBook ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
+            title="Book Management"
           >
             <BookText className="w-5 h-5" />
-          </button>
-
-          <button 
-            onClick={() => {
-              setIsShowingSettings(!isShowingSettings);
-              if (!isShowingSettings) setIsManagingChapters(false);
-            }}
-            className={`p-2 rounded-xl border transition-colors shadow-sm ${isShowingSettings ? "bg-blue-100 border-blue-300 text-blue-600" : "bg-white/80 dark:bg-gray-800/80 backdrop-blur-sm text-gray-500 hover:text-blue-500 border-gray-200 dark:border-gray-700"}`}
-            title="Book Settings"
-          >
-            <Settings className="w-5 h-5" />
           </button>
         </div>
       </div>
 
       <div className="space-y-2">
-        {/* Book Settings Form */}
-        {isShowingSettings && (
-          <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4">
-            <div className="flex justify-between items-center mb-4">
-              <h3 className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
-                <Settings className="w-4 h-4" />
-                Book Settings
-              </h3>
-              <button onClick={() => setIsShowingSettings(false)} className="text-blue-400 hover:text-blue-600">
-                <X className="w-4 h-4" />
-              </button>
-            </div>
+        {/* Book Management Form */}
+        {isManagingBook && (
+          <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4 relative">
+            <button 
+              onClick={() => setIsManagingBook(false)} 
+              className="absolute top-4 right-4 text-blue-400 hover:text-blue-600 p-1 rounded-full hover:bg-blue-100 dark:hover:bg-blue-900/30 transition-colors"
+            >
+              <X className="w-5 h-5" />
+            </button>
 
-            <div className="space-y-4">
-              <div className="flex flex-col gap-2">
-                <label className="text-sm font-semibold text-blue-800 dark:text-blue-300">
-                  Page Number Offset
-                </label>
-                <div className="flex items-center gap-3">
+            <div className="space-y-8">
+              {/* Page Number Offset Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">
+                  <Settings className="w-4 h-4" />
+                  <h4 className="font-bold text-sm uppercase tracking-wider">Page Number Offset</h4>
+                </div>
+                <div className="flex items-center gap-4 bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20">
                   <input 
                     type="number" 
                     value={offset}
                     onChange={(e) => updateOffset(parseInt(e.target.value) || 0)}
-                    className="w-24 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                    className="w-24 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 font-bold"
                   />
-                  <p className="text-xs text-gray-500 dark:text-gray-400">
-                    This value is added to the page number extracted from Google Books.
+                  <p className="text-xs text-gray-500 dark:text-gray-400 leading-relaxed">
+                    This value is added to the page number extracted from Google Books.<br/>
+                    Use this to align the digital page numbers with the physical ones.
                   </p>
+                </div>
+              </div>
+
+              {/* Chapter Management Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">
+                  <ListIcon className="w-4 h-4" />
+                  <h4 className="font-bold text-sm uppercase tracking-wider">Chapter Management</h4>
+                </div>
+                
+                <div className="bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20">
+                  <form onSubmit={handleAddChapter} className="flex flex-wrap gap-3 mb-6">
+                    <input 
+                      type="text" 
+                      placeholder="Chapter Title" 
+                      value={newChapterTitle}
+                      onChange={(e) => setNewChapterTitle(e.target.value)}
+                      className="flex-grow min-w-[200px] px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      required
+                    />
+                    <input 
+                      type="number" 
+                      placeholder="Page" 
+                      value={newChapterPage}
+                      onChange={(e) => setNewChapterPage(e.target.value)}
+                      className="w-24 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                      required
+                    />
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
+                      <Plus className="w-4 h-4" />
+                      Add
+                    </button>
+                  </form>
+
+                  {chapters.length > 0 ? (
+                    <div className="space-y-2 max-h-[300px] overflow-y-auto pr-2 custom-scrollbar">
+                      {chapters.map((chapter) => (
+                        <div key={chapter.id} className="flex items-center justify-between bg-white dark:bg-gray-800/50 p-3 rounded-xl text-sm border border-blue-100 dark:border-blue-900/30 shadow-sm">
+                          {editingChapterId === chapter.id ? (
+                            <div className="flex-1 flex items-center gap-2">
+                              <input 
+                                type="number"
+                                value={editChapterPage}
+                                onChange={(e) => setEditChapterPage(e.target.value)}
+                                className="w-16 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs font-bold"
+                                autoFocus
+                              />
+                              <input 
+                                type="text"
+                                value={editChapterTitle}
+                                onChange={(e) => setEditChapterTitle(e.target.value)}
+                                className="flex-1 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs"
+                                onKeyDown={(e) => {
+                                  if (e.key === 'Enter') {
+                                    editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
+                                    setEditingChapterId(null);
+                                  } else if (e.key === 'Escape') {
+                                    setEditingChapterId(null);
+                                  }
+                                }}
+                              />
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={() => {
+                                    editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
+                                    setEditingChapterId(null);
+                                  }}
+                                  className="text-green-500 hover:text-green-600 p-1"
+                                >
+                                  <Check className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => setEditingChapterId(null)}
+                                  className="text-gray-400 hover:text-gray-600 p-1"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </div>
+                          ) : (
+                            <>
+                              <div className="flex items-center gap-3">
+                                <div className="w-12 shrink-0">
+                                  <span className="font-bold text-blue-700 dark:text-blue-400">
+                                    p.{chapter.startPage}
+                                  </span>
+                                </div>
+                                <span className="text-gray-700 dark:text-gray-200 font-medium">{chapter.title}</span>
+                              </div>
+                              <div className="flex items-center gap-1">
+                                <button 
+                                  onClick={() => {
+                                    setEditingChapterId(chapter.id);
+                                    setEditChapterTitle(chapter.title);
+                                    setEditChapterPage(chapter.startPage.toString());
+                                  }}
+                                  className="text-blue-400 hover:text-blue-600 p-1.5 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/30 transition-colors"
+                                  title="Edit chapter"
+                                >
+                                  <Pencil className="w-4 h-4" />
+                                </button>
+                                <button 
+                                  onClick={() => removeChapter(chapter.id)} 
+                                  className="text-red-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/30 transition-colors"
+                                  title="Delete chapter"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </button>
+                              </div>
+                            </>
+                          )}
+                        </div>
+                      ))}
+                    </div>
+                  ) : (
+                    <div className="text-center py-8 border-2 border-dashed border-blue-100 dark:border-blue-900/20 rounded-xl">
+                      <p className="text-sm text-gray-400">No chapters added yet.</p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
           </div>
         )}
-
-        {/* Chapter Management Form */}
-      {isManagingChapters && (
-        <div className="bg-blue-50 dark:bg-blue-900/10 p-6 rounded-2xl border border-blue-100 dark:border-blue-900/30 mb-8 animate-in fade-in slide-in-from-top-4">
-          <div className="flex justify-between items-center mb-4">
-            <h3 className="font-bold text-blue-800 dark:text-blue-300 flex items-center gap-2">
-              <ListIcon className="w-4 h-4" />
-              Manage Book Chapters
-            </h3>
-            <button onClick={() => setIsManagingChapters(false)} className="text-blue-400 hover:text-blue-600">
-              <X className="w-4 h-4" />
-            </button>
-          </div>
-
-          <form onSubmit={handleAddChapter} className="flex flex-wrap gap-3 mb-6">
-            <input 
-              type="text" 
-              placeholder="Chapter Title" 
-              value={newChapterTitle}
-              onChange={(e) => setNewChapterTitle(e.target.value)}
-              className="flex-grow min-w-[200px] px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            <input 
-              type="number" 
-              placeholder="Start Page" 
-              value={newChapterPage}
-              onChange={(e) => setNewChapterPage(e.target.value)}
-              className="w-24 px-4 py-2 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-              required
-            />
-            <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm font-bold flex items-center gap-2 transition-colors">
-              <Plus className="w-4 h-4" />
-              Add
-            </button>
-          </form>
-
-          {chapters.length > 0 && (
-            <div className="space-y-1">
-
-              <p className="text-xs font-semibold text-blue-400 uppercase tracking-wider mb-2">Existing Chapters</p>
-              {chapters.map((chapter) => (
-                <div key={chapter.id} className="flex items-center justify-between bg-white/50 dark:bg-black/20 p-3 rounded-xl text-sm border border-blue-100/50 dark:border-blue-900/20">
-                  {editingChapterId === chapter.id ? (
-                    <div className="flex-1 flex items-center gap-2">
-                      <input 
-                        type="number"
-                        value={editChapterPage}
-                        onChange={(e) => setEditChapterPage(e.target.value)}
-                        className="w-16 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs"
-                        autoFocus
-                      />
-                      <input 
-                        type="text"
-                        value={editChapterTitle}
-                        onChange={(e) => setEditChapterTitle(e.target.value)}
-                        className="flex-1 px-2 py-1 rounded bg-white dark:bg-gray-800 border border-blue-200 dark:border-blue-800 text-xs"
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
-                            setEditingChapterId(null);
-                          } else if (e.key === 'Escape') {
-                            setEditingChapterId(null);
-                          }
-                        }}
-                      />
-                      <div className="flex items-center gap-1">
-                        <button 
-                          onClick={() => {
-                            editChapter(chapter.id, editChapterTitle, parseInt(editChapterPage));
-                            setEditingChapterId(null);
-                          }}
-                          className="text-green-500 hover:text-green-600 p-1"
-                        >
-                          <Check className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => setEditingChapterId(null)}
-                          className="text-gray-400 hover:text-gray-600 p-1"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <>
-                      <div className="flex items-center gap-3">
-                        <div className="w-12 shrink-0">
-                          <span className="font-bold text-blue-700 dark:text-blue-400 w-12">
-                            p.{chapter.startPage}
-                          </span>
-                        </div>
-                        <span className="text-gray-700 dark:text-gray-200">{chapter.title}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <button 
-                          onClick={() => {
-                            setEditingChapterId(chapter.id);
-                            setEditChapterTitle(chapter.title);
-                            setEditChapterPage(chapter.startPage.toString());
-                          }}
-                          className="text-blue-400 hover:text-blue-600 p-1"
-                          title="Edit chapter"
-                        >
-                          <Pencil className="w-4 h-4" />
-                        </button>
-                        <button 
-                          onClick={() => removeChapter(chapter.id)} 
-                          className="text-red-400 hover:text-red-600 p-1"
-                          title="Delete chapter"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-        </div>
-      )}
 
       {/* Grouped Annotations List */}
       <div className="space-y-1">
