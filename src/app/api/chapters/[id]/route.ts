@@ -25,7 +25,7 @@ export async function GET(
 
   try {
     const accessToken = session.accessToken as string;
-    const { chapters, offset, modifiedTime } = await getBookData(accessToken, volumeId);
+    const { chapters, offset, notes, modifiedTime } = await getBookData(accessToken, volumeId);
 
     // Compare modifiedTime with lastSynced
     if (lastSynced && modifiedTime && new Date(modifiedTime) <= new Date(lastSynced)) {
@@ -35,6 +35,7 @@ export async function GET(
     return NextResponse.json({
       chapters,
       offset,
+      notes,
       lastSynced: modifiedTime,
     });
   } catch (error) {

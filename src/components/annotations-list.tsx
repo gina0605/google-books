@@ -17,7 +17,8 @@ import {
   ExternalLink,
   RefreshCw,
   Search,
-  Settings
+  Settings,
+  StickyNote
 } from "lucide-react";
 
 interface AnnotationsListProps {
@@ -102,7 +103,18 @@ interface GroupedAnnotations {
 }
 
 export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps) {
-  const { chapters, offset, addChapter, removeChapter, editChapter, updateOffset, isLoaded, isSyncing } = useChapters(volumeId);
+  const { 
+    chapters, 
+    offset, 
+    notes, 
+    addChapter, 
+    removeChapter, 
+    editChapter, 
+    updateOffset, 
+    updateNotes, 
+    isLoaded, 
+    isSyncing 
+  } = useChapters(volumeId);
   const [selectedColor, setSelectedColor] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [isManagingBook, setIsManagingBook] = useState(false);
@@ -304,6 +316,22 @@ export function AnnotationsList({ annotations, volumeId }: AnnotationsListProps)
             </button>
 
             <div className="space-y-8">
+              {/* Book Notes Section */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">
+                  <StickyNote className="w-4 h-4" />
+                  <h4 className="font-bold text-sm uppercase tracking-wider">Book Notes</h4>
+                </div>
+                <div className="bg-white/50 dark:bg-black/20 p-4 rounded-xl border border-blue-100/50 dark:border-blue-900/20">
+                  <textarea 
+                    value={notes}
+                    onChange={(e) => updateNotes(e.target.value)}
+                    placeholder="General notes about this book..."
+                    className="w-full h-32 px-4 py-3 rounded-lg border border-blue-200 dark:border-blue-800 bg-white dark:bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 resize-none custom-scrollbar"
+                  />
+                </div>
+              </div>
+
               {/* Page Number Offset Section */}
               <div className="space-y-3">
                 <div className="flex items-center gap-2 text-blue-800 dark:text-blue-300">

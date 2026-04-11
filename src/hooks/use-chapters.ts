@@ -14,6 +14,7 @@ interface LocalStorageData {
 export function useChapters(volumeId: string) {
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [offset, setOffset] = useState<number>(0);
+  const [notes, setNotes] = useState<string>("");
   const [isLoaded, setIsLoaded] = useState(false);
   const [isSyncing, setIsSyncing] = useState(false);
 
@@ -30,6 +31,7 @@ export function useChapters(volumeId: string) {
         const parsed = JSON.parse(saved);
         setChapters(parsed.chapters || []);
         setOffset(parsed.offset || 0);
+        setNotes(parsed.notes || "");
         initialLastSynced = parsed.lastSynced;
       } catch (e) {
         console.error("Failed to parse saved chapters:", e);
@@ -48,11 +50,13 @@ export function useChapters(volumeId: string) {
           if (!data.upToDate) {
             setChapters(data.chapters);
             setOffset(data.offset || 0);
+            setNotes(data.notes || "");
             localStorage.setItem(
               storageKey,
               JSON.stringify({
                 chapters: data.chapters,
                 offset: data.offset || 0,
+                notes: data.notes || "",
                 lastSynced: data.lastSynced,
               })
             );
@@ -70,7 +74,7 @@ export function useChapters(volumeId: string) {
 
   // Function to save to Drive (debounced)
   const saveToDrive = useCallback(
-    async (updatedChapters: Chapter[], updatedOffset: number) => {
+    async (updatedChapters: Chapter[], updatedOffset: number, updatedNotes: string) => {
       setIsSyncing(true);
       try {
         const response = await fetch(`/api/chapters/${volumeId}`, {
@@ -79,6 +83,7 @@ export function useChapters(volumeId: string) {
           body: JSON.stringify({
             chapters: updatedChapters,
             offset: updatedOffset,
+            notes: updatedNotes,
           }),
         });
 
@@ -89,6 +94,7 @@ export function useChapters(volumeId: string) {
             JSON.stringify({
               chapters: updatedChapters,
               offset: updatedOffset,
+              notes: updatedNotes,
               lastSynced: data.lastSynced,
             })
           );
@@ -102,9 +108,10 @@ export function useChapters(volumeId: string) {
     [volumeId, storageKey]
   );
 
-  const updateDataLocally = (newChapters: Chapter[], newOffset: number) => {
+  const updateDataLocally = (newChapters: Chapter[], newOffset: number, newNotes: string) => {
     setChapters(newChapters);
     setOffset(newOffset);
+    setNotes(newNotes);
     
     // Update localStorage immediately (as cache)
     const saved = localStorage.getItem(storageKey);
@@ -121,6 +128,7 @@ export function useChapters(volumeId: string) {
       JSON.stringify({
         chapters: newChapters,
         offset: newOffset,
+        notes: newNotes,
         lastSynced, // keep current sync time until server confirms
       })
     );
@@ -128,7 +136,7 @@ export function useChapters(volumeId: string) {
     // Debounce save to Drive
     if (saveTimeoutRef.current) clearTimeout(saveTimeoutRef.current);
     saveTimeoutRef.current = setTimeout(() => {
-      saveToDrive(newChapters, newOffset);
+      saveToDrive(newChapters, newOffset, newNotes);
     }, 2000);
   };
 
@@ -139,32 +147,38 @@ export function useChapters(volumeId: string) {
       startPage,
     };
     const updated = [...chapters, newChapter].sort((a, b) => a.startPage - b.startPage);
-    updateDataLocally(updated, offset);
+    updateDataLocally(updated, offset, notes);
   };
 
   const removeChapter = (id: string) => {
     const updated = chapters.filter((c) => c.id !== id);
-    updateDataLocally(updated, offset);
+    updateDataLocally(updated, offset, notes);
   };
 
   const editChapter = (id: string, title: string, startPage: number) => {
     const updated = chapters.map((c) =>
       c.id === id ? { ...c, title, startPage } : c
     ).sort((a, b) => a.startPage - b.startPage);
-    updateDataLocally(updated, offset);
+    updateDataLocally(updated, offset, notes);
   };
 
   const updateOffset = (newOffset: number) => {
-    updateDataLocally(chapters, newOffset);
+    updateDataLocally(chapters, newOffset, notes);
+  };
+
+  const updateNotes = (newNotes: string) => {
+    updateDataLocally(chapters, offset, newNotes);
   };
 
   return {
     chapters,
     offset,
+    notes,
     addChapter,
     removeChapter,
     editChapter,
     updateOffset,
+    updateNotes,
     isLoaded,
     isSyncing,
   };

@@ -12,17 +12,17 @@ export const CHAPTERS_FOLDER_NAME = "google-books-chapters";
 export async function getBookData(
   accessToken: string,
   volumeId: string
-): Promise<{ chapters: any[]; offset: number; modifiedTime: string | null }> {
+): Promise<{ chapters: any[]; offset: number; notes: string; modifiedTime: string | null }> {
   const fileName = `${volumeId}.json`;
   const folderId = await findFolder(accessToken, CHAPTERS_FOLDER_NAME);
   
   if (!folderId) {
-    return { chapters: [], offset: 0, modifiedTime: null };
+    return { chapters: [], offset: 0, notes: "", modifiedTime: null };
   }
 
   const metadata = await findFileMetadata(accessToken, fileName, folderId);
   if (!metadata) {
-    return { chapters: [], offset: 0, modifiedTime: null };
+    return { chapters: [], offset: 0, notes: "", modifiedTime: null };
   }
 
   const content = await getFileContent(accessToken, metadata.id);
@@ -30,6 +30,7 @@ export async function getBookData(
   return {
     chapters: content.chapters || [],
     offset: content.offset || 0,
+    notes: content.notes || "",
     modifiedTime: metadata.modifiedTime
   };
 }
