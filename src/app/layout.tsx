@@ -7,7 +7,7 @@ import { Footer } from "@/components/footer";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Google Books Memo Viewer",
+  title: "My Book Notes",
   description: "View your Google Play Books memos",
 };
 

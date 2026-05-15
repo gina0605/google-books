@@ -26,7 +26,7 @@ export default function Home() {
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm flex flex-col">
         <h1 className="text-3xl md:text-4xl font-bold mb-8 text-gray-800 dark:text-gray-100 flex items-center gap-4 text-center">
           <BookOpen className="w-8 h-8 md:w-10 md:h-10 text-blue-500 flex-shrink-0" />
-          Google Books Memo Viewer
+          My Book Notes
         </h1>
 
         {session ? (

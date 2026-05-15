@@ -3,8 +3,8 @@ import Link from "next/link";
 import { ArrowLeft, ShieldCheck } from "lucide-react";
 
 export const metadata: Metadata = {
-  title: "Privacy Policy | Google Books Memo Viewer",
-  description: "Google Books Memo Viewer privacy policy",
+  title: "Privacy Policy | My Book Notes",
+  description: "My Book Notes privacy policy",
 };
 
 const lastUpdated = "May 16, 2026";
@@ -42,7 +42,7 @@ export default function PrivacyPage() {
               1. Information We Collect
             </h2>
             <p>
-              Google Books Memo Viewer uses Google sign-in to authenticate
+              My Book Notes uses Google sign-in to authenticate
               users and provide the service. During sign-in, we may process
               basic Google account profile information such as your name, email
               address, and profile image.
