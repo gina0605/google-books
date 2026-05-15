@@ -214,7 +214,7 @@ https://www.googleapis.com/books/v1/mylibrary/annotations
 저장 위치는 두 곳입니다.
 
 - 브라우저 `localStorage`: 빠른 로컬 캐시
-- Google Drive: `google-books-chapters` 폴더 아래 `{volumeId}.json`
+- Google Drive: `my-book-notes` 폴더 아래 `{volumeId}.json`
 
 `useChapters` 훅은 최초 로딩 시 localStorage를 먼저 읽고, 이후 Google Drive에서 최신 데이터를 가져옵니다. 변경 사항은 즉시 localStorage에 반영되고, 2초 debounce 후 Drive에 저장됩니다.
 

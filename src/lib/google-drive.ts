@@ -7,7 +7,7 @@ export interface DriveFile {
   modifiedTime: string;
 }
 
-export const CHAPTERS_FOLDER_NAME = "google-books-chapters";
+export const CHAPTERS_FOLDER_NAME = "my-book-notes";
 
 export async function getBookData(
   accessToken: string,
