@@ -9,12 +9,6 @@ export interface Book {
   isbn?: string;
 }
 
-export interface TOCItem {
-  title: string;
-  level: number;
-  pagenum: string;
-}
-
 export interface Annotation {
   id: string;
   volumeId: string;
@@ -174,37 +168,4 @@ export async function fetchAnnotations(
   console.log(`Filtered and sorted ${annotations.length} content-rich annotations (memos).`);
 
   return annotations;
-}
-
-export async function fetchTableOfContents(isbn: string): Promise<TOCItem[]> {
-  console.log(`Fetching TOC from Open Library for ISBN: ${isbn}...`);
-  try {
-    const response = await fetch(
-      `https://openlibrary.org/api/books?bibkeys=ISBN:${isbn}&jscmd=details&format=json`,
-      { cache: 'no-store' }
-    );
-    
-    if (!response.ok) return [];
-
-    const data = await response.json();
-    const bibKey = `ISBN:${isbn}`;
-    const bookData = data[bibKey];
-    
-    if (!bookData || !bookData.details || !bookData.details.table_of_contents) {
-      console.log(`No TOC found in Open Library for ISBN: ${isbn}`);
-      return [];
-    }
-
-    const toc = bookData.details.table_of_contents.map((item: any) => ({
-      title: item.title || item.label || "Untitled Chapter",
-      level: item.level || 0,
-      pagenum: item.pagenum || "",
-    }));
-
-    console.log(`Found ${toc.length} TOC items.`);
-    return toc;
-  } catch (error) {
-    console.error("Error fetching TOC from Open Library:", error);
-    return [];
-  }
 }

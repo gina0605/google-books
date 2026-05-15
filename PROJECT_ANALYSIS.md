@@ -23,7 +23,7 @@
 | UI | React 18, Tailwind CSS |
 | 언어 | TypeScript |
 | 인증 | NextAuth.js, Google OAuth |
-| 외부 API | Google Books API, Google Drive API, Open Library API |
+| 외부 API | Google Books API, Google Drive API |
 | 아이콘 | lucide-react |
 | 패키지 매니저 | npm |
 
@@ -136,7 +136,7 @@ Next.js App Router 라우트가 들어 있는 영역입니다.
 외부 API 연동과 인증 설정을 담당합니다.
 
 - [src/lib/auth.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/auth.ts): Google OAuth provider, JWT/session callback, access token refresh 로직이 있습니다.
-- [src/lib/books.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/books.ts): Google Books API와 Open Library API 호출 로직이 있습니다.
+- [src/lib/books.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/books.ts): Google Books API 호출 로직이 있습니다.
 - [src/lib/google-drive.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/google-drive.ts): Google Drive 폴더/파일 조회, 생성, 수정, JSON 콘텐츠 읽기를 담당합니다.
 
 ### `src/components`
@@ -252,10 +252,6 @@ https://www.googleapis.com/books/v1/mylibrary/annotations
 
 앱 자체 데이터, 즉 챕터/offset/책 노트를 사용자의 Drive에 저장합니다. `drive.file` scope를 사용하므로 앱이 생성하거나 접근 권한을 가진 파일 중심으로 동작하는 구조입니다.
 
-### Open Library API
-
-[src/lib/books.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/books.ts)의 `fetchTableOfContents`에서 ISBN 기반 목차 조회 기능이 구현되어 있습니다. 현재 읽은 범위에서는 UI에서 직접 호출되는 곳은 보이지 않습니다.
-
 ## 설정 파일
 
 - [next.config.mjs](/Users/im-yujin/Documents/programming/etc/google-books/next.config.mjs): `books.google.com` 이미지를 Next Image remote pattern으로 허용합니다.
@@ -266,7 +262,6 @@ https://www.googleapis.com/books/v1/mylibrary/annotations
 ## 현재 코드에서 눈에 띄는 점
 
 - [src/lib/books.ts](/Users/im-yujin/Documents/programming/etc/google-books/src/lib/books.ts)는 현재 git 기준 수정된 상태입니다.
-- `fetchTableOfContents`는 구현되어 있지만, 현재 UI 흐름에서는 사용처가 보이지 않습니다.
 - `fetchReadBooks` 안에 `console.log(data.items?.[0]);`가 있어 실제 사용자 책 데이터 일부가 서버 로그에 찍힐 수 있습니다.
 - 메모/책 API 요청은 `cache: 'no-store'`를 사용해 최신 데이터를 우선합니다.
 - 챕터 저장은 localStorage와 Drive를 같이 쓰기 때문에 UX는 빠르지만, 여러 기기에서 동시에 수정하면 마지막 저장이 덮어쓸 가능성이 있습니다.
