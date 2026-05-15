@@ -1,12 +1,19 @@
 "use client";
 
+import { useEffect } from "react";
 import { signIn, signOut, useSession } from "next-auth/react";
 import { BookOpen, LogOut, User } from "lucide-react";
 
 export default function Home() {
   const { data: session, status } = useSession();
 
-  if (status === "loading") {
+  useEffect(() => {
+    if (session?.error === "RefreshAccessTokenError") {
+      signOut({ redirect: false });
+    }
+  }, [session?.error]);
+
+  if (status === "loading" || session?.error === "RefreshAccessTokenError") {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

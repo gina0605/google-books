@@ -5,6 +5,7 @@ import { redirect } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import { BookOpen, User } from "lucide-react";
+import { SessionExpiredCard } from "@/components/session-expired-card";
 
 export default async function DashboardPage() {
   const session = await getServerSession(authOptions);
@@ -91,22 +92,29 @@ export default async function DashboardPage() {
     console.error("Dashboard error:", error);
     const isUnauthorized = error.status === 401;
 
+    if (isUnauthorized) {
+      return (
+        <SessionExpiredCard
+          callbackUrl="/dashboard"
+          message="Your Google session has expired. Please sign in again to access your library."
+        />
+      );
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-red-200 dark:border-red-900 max-w-md text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">
-            {isUnauthorized ? "Session Expired" : "API Error"}
+            API Error
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {isUnauthorized 
-              ? "Your Google session has expired. Please sign in again to access your library."
-              : "There was a problem fetching your books. This might be due to API limits or a network issue."}
+            There was a problem fetching your books. This might be due to API limits or a network issue.
           </p>
           <Link
             href="/"
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
           >
-            {isUnauthorized ? "Sign In Again" : "Try Again"}
+            Try Again
           </Link>
         </div>
       </div>

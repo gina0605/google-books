@@ -6,6 +6,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { ArrowLeft, BookOpen, Calendar, MessageSquare } from "lucide-react";
 import { AnnotationsList } from "@/components/annotations-list";
+import { SessionExpiredCard } from "@/components/session-expired-card";
 
 interface BookPageProps {
   params: {
@@ -107,22 +108,29 @@ export default async function BookDetailPage({ params }: BookPageProps) {
     console.error("Book detail error:", error);
     const isUnauthorized = error.status === 401;
 
+    if (isUnauthorized) {
+      return (
+        <SessionExpiredCard
+          callbackUrl={`/dashboard/book/${params.id}`}
+          message="Your Google session has expired. Please sign in again."
+        />
+      );
+    }
+
     return (
       <div className="min-h-screen flex items-center justify-center p-8 bg-gray-50 dark:bg-gray-900">
         <div className="bg-white dark:bg-gray-800 p-8 rounded-xl shadow-lg border border-red-200 dark:border-red-900 max-w-md text-center">
           <h2 className="text-2xl font-bold text-red-600 mb-4">
-            {isUnauthorized ? "Session Expired" : "Error"}
+            Error
           </h2>
           <p className="text-gray-600 dark:text-gray-300 mb-6">
-            {isUnauthorized 
-              ? "Your Google session has expired. Please sign in again."
-              : "There was a problem fetching the book details or memos."}
+            There was a problem fetching the book details or memos.
           </p>
           <Link
             href="/"
             className="inline-block bg-blue-600 hover:bg-blue-700 text-white font-bold py-2 px-6 rounded-lg transition-colors"
           >
-            {isUnauthorized ? "Sign In Again" : "Back to Dashboard"}
+            Back to Dashboard
           </Link>
         </div>
       </div>
